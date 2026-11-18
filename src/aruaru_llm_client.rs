@@ -50,15 +50,16 @@ impl AruaruLlmClient {
         }
     }
 
-    /// `/v1/generate`へプロンプトを送り、生成テキスト(`completion`)を返す。
+    /// `aruaru_llm.v1.Llm/Generate`(Connect)へプロンプトを送り、生成テキスト(`completion`)を返す。
     /// `/v1/chat`は意図分類ベースのFAQ応答用であり、差分解析のような
-    /// 自由記述の生成には`/v1/generate`が適する(aruaru-llm側の設計方針、
+    /// 自由記述の生成には`aruaru_llm.v1.Llm/Generate`(Connect)が適する(aruaru-llm側の設計方針、
     /// `src/main.rs`のコメント参照)。
     pub async fn chat(&self, prompt: &str) -> Result<String, AruaruLlmError> {
-        let url = format!("{}/v1/generate", self.base_url.trim_end_matches('/'));
+        let url = format!("{}/aruaru_llm.v1.Llm/Generate", self.base_url.trim_end_matches('/'));
         let res = self
             .http
             .post(&url)
+            .header("x-tenant", "sftp-git")
             .json(&GenerateRequest {
                 prompt: prompt.to_string(),
                 max_new_tokens: 128,
